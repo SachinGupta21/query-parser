@@ -1,0 +1,63 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+</head>
+<body>
+
+  <p>Hello World</p>
+
+  <script>
+	class Connection {
+	  constructor(type, url, port, username, password, database) {
+	  	console.log('inside constructor');
+	  	this.type = type;
+	  	this.url = url;
+	  	this.port = port;
+	  	this.username = username;
+	  	this.password = password;
+	  	this.database = database;
+	  	this.token = '';
+	  }
+	  
+	  connect() {
+	    console.log('connecting to db...');
+	    var data = {
+	    	type: this.type,
+	    	url: this.url,
+	    	port: this.port,
+	    	username: this.username,
+	    	password: this.password,
+	    	database: this.database
+	    };
+			$.post('connectToDb', data)
+			.done(function( data ) {
+			  console.log(data);
+			  this.token = JSON.parse(data).token;
+			  console.log(this.token)
+			}.bind(this));
+	  }
+
+	  execute(query) {
+	  	console.log(this.token);
+	  	query = typeof query === 'object' ? JSON.stringify(query): query
+			$.ajax({
+				url: 'executeQuery',
+				type: 'post',
+				data: {query: query},
+				headers: {'authorization': this.token},
+				success: function (data) {
+        	console.info(data);
+    		}
+			});
+	  }
+
+	  close() {
+	    console.log('closing the connection');
+	  }
+	}
+  </script>
+
+</body>
+
+</html>
